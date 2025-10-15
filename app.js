@@ -21,13 +21,23 @@ app.get('/api/info', (req, res) => {
   });
 });
 
+//еще один
+app.get('/api/user', (req, res) => {
+  res.json({
+    id: 1,
+    name: 'John Doe',
+    role: 'admin'
+  });
+});
 
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy' });
 });
 
-app.listen(port, () => {
-  console.log(`App running on port ${port}`);
-});
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`App running on port ${port}`);
+  });
+}
 
 module.exports = app;
