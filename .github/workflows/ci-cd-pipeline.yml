@@ -5,7 +5,7 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main ]
-    types: [ opened, synchronize, closed ]
+    types: [ closed ]  # Триггер только на закрытие PR
 
 env:
   DOCKER_IMAGE_NAME: ${{ github.repository }}
@@ -19,8 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      
+          fetch-depth: 0    
       - name: Validate Commit Messages
         uses: wagoid/commitlint-github-action@v5
         with:
@@ -34,19 +33,15 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci
-
       - name: Run tests
         run: npm test
-
       - name: Run security audit
         run: npm audit --audit-level high
 
@@ -63,8 +58,7 @@ jobs:
   security-scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
+      - uses: actions/checkout@v4      
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@master
         continue-on-error: true
@@ -97,17 +91,14 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-  
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-  
       - name: Install dependencies
         run: npm ci
-  
-      - name: Semantic Version
+      - name: Semantic Release
         id: semantic_version
         uses: cycjimmy/semantic-release-action@v4
         with:
@@ -116,13 +107,11 @@ jobs:
             @semantic-release/git@10
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
       - name: Debug semantic version output
         run: |
           echo "NEW_RELEASE_PUBLISHED=${{ steps.semantic_version.outputs.new_release_published }}"
           echo "NEW_RELEASE_VERSION=${{ steps.semantic_version.outputs.new_release_version }}"
           echo "NEW_RELEASE_GIT_TAG=${{ steps.semantic_version.outputs.new_release_git_tag }}"
-
       - name: Add changelog label
         if: ${{ github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-add-labels@v1
@@ -131,7 +120,6 @@ jobs:
           repo: ${{ github.repository }}
           number: ${{ github.event.pull_request.number }}
           labels: changelog
-
       - name: Add version label
         if: >
           github.event_name == 'pull_request' &&
@@ -143,19 +131,15 @@ jobs:
           repo: ${{ github.repository }}
           number: ${{ github.event.pull_request.number }}
           labels: ${{ steps.semantic_version.outputs.new_release_version }}
-
-  
       - name: Set up Docker Buildx
         if: steps.semantic_version.outputs.new_release_published == 'true'
         uses: docker/setup-buildx-action@v3
-  
       - name: Login to Docker Hub
         if: steps.semantic_version.outputs.new_release_published == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-  
       - name: Build and push Docker image
         if: steps.semantic_version.outputs.new_release_published == 'true'
         uses: docker/build-push-action@v5
@@ -167,7 +151,6 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ steps.semantic_version.outputs.new_release_version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
       - name: Add dockerhub label
         if: >
           github.event_name == 'pull_request' &&
@@ -179,8 +162,11 @@ jobs:
           repo: ${{ github.repository }}
           number: ${{ github.event.pull_request.number }}
           labels: dockerhub
-
+      - name: Prepare changelog
+        if: steps.semantic_version.outputs.new_release_published == 'true'
+        run: cp CHANGELOG.md changelog.md
       - name: Send changelog file with caption
+        if: steps.semantic_version.outputs.new_release_published == 'true'
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -188,23 +174,22 @@ jobs:
           document: changelog.md
           caption: |
             Новый выпуск изменений
-      
+
             Проект: ${{ github.repository }}
             Версия: ${{ steps.semantic_version.outputs.new_release_version }}
-            Дата: ${{ steps.semantic_version.outputs.date || github.run_started_at }}
+            Дата: ${{ github.run_started_at }}
             Автор: ${{ github.actor }}
-      
+
             Информация о Git-репозитории
             GIT MR: ${{ github.event.pull_request.number || '-' }}
             GIT TAG: https://github.com/${{ github.repository }}/releases/tag/${{ steps.semantic_version.outputs.new_release_git_tag }}
-      
+
             Информация о Docker-репозитории
             Владелец: ${{ secrets.DOCKER_USERNAME }}
             Название: ${{ github.event.repository.name }}
             Тег: ${{ steps.semantic_version.outputs.new_release_version }}
             Полное имя: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ steps.semantic_version.outputs.new_release_version }}
 
- 
   deploy:
     needs: [build-and-deploy]
     runs-on: ubuntu-latest
@@ -212,5 +197,4 @@ jobs:
     steps:
       - name: Deploy to staging (Mock)
         run: |
-
-
+          echo "Deploy step"
