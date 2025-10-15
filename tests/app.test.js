@@ -17,4 +17,16 @@ describe('App Tests', () => {
     
     expect(response.body.status).toBe('healthy');
   });
+
+  test('GET /api/user should return user object', async () => {
+    const response = await request(app)
+      .get('/api/user')
+      .expect(200);
+
+    expect(response.body).toEqual({
+      id: 1,
+      name: 'John Doe',
+      role: 'admin'
+    });
+  });
 });
