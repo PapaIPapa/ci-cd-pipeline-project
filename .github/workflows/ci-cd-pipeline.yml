@@ -180,22 +180,42 @@ jobs:
           number: ${{ github.event.pull_request.number }}
           labels: dockerhub
 
-      - name: Prepare changelog file
+      - name: Prepare changelog
         run: |
-          tail -n 10 CHANGELOG.md > latest_changelog.md
+          # Можно сохранить весь changelog, либо только последние строки — настроить под себя
+          cp CHANGELOG.md changelog.md
       
-      - name: Send Telegram notification with changelog file
+      - name: Send Telegram message
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
-            Новый релиз!
-            Проект: ${{ github.repository }}
-            Версия: ${{ steps.semantic_version.outputs.new_release_version }}
-            Тег: ${{ steps.semantic_version.outputs.new_release_git_tag }}
-            Автор: ${{ github.actor }}
-          file: latest_changelog.txt
+            <b>GITHUB_DEVOPS_BOT</b>
+            Новый выпуск изменений
+            <b>Проект :</b> ${{ github.repository }}
+            <b>Версия :</b> ${{ steps.semantic_version.outputs.new_release_version }}
+            <b>Дата:</b> ${{ steps.semantic_version.outputs.new_release_git_tag_time }}
+            <b>Автор:</b> ${{ github.actor }}
+      
+            <b>Информация о Git-репозитории</b>
+            GIT MR : ${{ github.event.pull_request.number }}
+            GIT TAG: ${{ steps.semantic_version.outputs.new_release_git_tag }}
+      
+            <b>Информация о Docker-репозитории</b>
+            Владелец: ${{ secrets.DOCKER_USERNAME }}
+            Название: ${{ github.event.repository.name }}
+            Тег: ${{ steps.semantic_version.outputs.new_release_version }}
+            Полное имя: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ steps.semantic_version.outputs.new_release_git_tag }}
+          parse_mode: html
+      
+      - name: Send changelog file
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          document: changelog.md
+
 
   
   deploy:
