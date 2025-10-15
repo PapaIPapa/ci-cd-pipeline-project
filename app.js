@@ -11,6 +11,17 @@ app.get('/', (req, res) => {
   });
 });
 
+//новый эндпоинт
+app.get('/api/info', (req, res) => {
+  res.json({ 
+    app: 'CI/CD Pipeline Demo',
+    version: process.env.APP_VERSION || '1.0.0',
+    environment: process.env.NODE_ENV || 'development',
+    uptime: process.uptime()
+  });
+});
+
+
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy' });
 });
