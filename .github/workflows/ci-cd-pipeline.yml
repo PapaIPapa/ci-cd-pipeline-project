@@ -180,15 +180,13 @@ jobs:
           number: ${{ github.event.pull_request.number }}
           labels: dockerhub
 
-      - name: Prepare changelog
-        run: cp CHANGELOG.md changelog.md
-      
-      - name: Send Telegram message
+      - name: Send changelog file with caption
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          message: |
+          document: changelog.md
+          caption: |
             Новый выпуск изменений
       
             Проект: ${{ github.repository }}
@@ -205,13 +203,7 @@ jobs:
             Название: ${{ github.event.repository.name }}
             Тег: ${{ steps.semantic_version.outputs.new_release_version }}
             Полное имя: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ steps.semantic_version.outputs.new_release_version }}
-      
-      - name: Send changelog file
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_CHAT_ID }}
-          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          document: changelog.md
+
  
   deploy:
     needs: [build-and-deploy]
