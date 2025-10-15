@@ -123,7 +123,7 @@ jobs:
 
       - name: Send Telegram notification
         uses: appleboy/telegram-action@master
-        if: always()
+        if: needs.build-and-deploy.outputs.version != ''
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
