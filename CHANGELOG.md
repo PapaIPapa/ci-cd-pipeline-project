@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/PapaIPapa/ci-cd-pipeline-project/compare/v1.0.0...v1.0.1) (2025-10-15)
+
+
+### Bug Fixes
+
+* **api:** update app.js ([32bd5a1](https://github.com/PapaIPapa/ci-cd-pipeline-project/commit/32bd5a1b0d8694c22d6f5a86738c3b182bb7e0c0))
+
 # 1.0.0 (2025-10-15)
 
 
