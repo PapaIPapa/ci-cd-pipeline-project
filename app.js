@@ -11,6 +11,7 @@ app.get('/', (req, res) => {
   });
 });
 
+//новый эндпоинт
 app.get('/api/info', (req, res) => {
   res.json({ 
     app: 'CI/CD Pipeline Demo',
