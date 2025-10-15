@@ -133,10 +133,17 @@ jobs:
           labels: changelog
 
       - name: Add version label
+        if: >
+          github.event_name == 'pull_request' &&
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == true
         uses: actions-ecosystem/action-add-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          repo: ${{ github.repository }}
+          number: ${{ github.event.pull_request.number }}
           labels: ${{ steps.semantic_version.outputs.new_release_version }}
+
   
       - name: Set up Docker Buildx
         if: steps.semantic_version.outputs.new_release_published == 'true'
