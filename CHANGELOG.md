@@ -1,3 +1,10 @@
+## [1.0.15](https://github.com/PapaIPapa/ci-cd-pipeline-project/compare/v1.0.14...v1.0.15) (2025-10-15)
+
+
+### Bug Fixes
+
+* 123 ([5f99366](https://github.com/PapaIPapa/ci-cd-pipeline-project/commit/5f993660f10df28fd617d5ee572b6cf513e4589d))
+
 ## [1.0.14](https://github.com/PapaIPapa/ci-cd-pipeline-project/compare/v1.0.13...v1.0.14) (2025-10-15)
 
 
