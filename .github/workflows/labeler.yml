@@ -1,0 +1,21 @@
+# Configuration for File-based labeling
+documentation:
+  - '**/*.md'
+  - 'docs/**/*'
+
+dependencies:
+  - 'package*.json'
+  - 'yarn.lock'
+
+docker:
+  - 'Dockerfile*'
+  - '.dockerignore'
+  - 'docker-compose*.yml'
+
+ci-cd:
+  - '.github/**/*'
+
+tests:
+  - '**/*.test.js'
+  - '**/*.spec.js'
+  - 'tests/**/*'
