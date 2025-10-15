@@ -10,7 +10,11 @@
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix"
   },
-  "keywords": ["cicd", "docker", "github-actions"],
+  "keywords": [
+    "cicd",
+    "docker",
+    "github-actions"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
@@ -21,11 +25,13 @@
     "@commitlint/config-conventional": "^17.6.0",
     "eslint": "^8.42.0",
     "jest": "^29.5.0",
-    "supertest": "^6.3.3",
-    "nodemon": "^2.0.22"
+    "nodemon": "^3.1.10",
+    "supertest": "^6.3.3"
   },
   "jest": {
     "testEnvironment": "node",
-    "testMatch": ["**/tests/**/*.test.js"]
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
   }
 }
