@@ -166,30 +166,39 @@ jobs:
         if: steps.semantic_version.outputs.new_release_published == 'true'
         run: cp CHANGELOG.md changelog.md
 
-      - name: Send changelog file with caption
+      - name: Send Telegram info message
+        if: steps.semantic_version.outputs.new_release_published == 'true'
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            Новый выпуск изменений
+      
+            Проект: ${{ github.repository }}
+            Версия: ${{ steps.semantic_version.outputs.new_release_version }}
+            Дата: ${{ github.run_started_at }}
+            Автор: ${{ github.actor }}
+      
+            Информация о Git-репозитории
+            GIT MR: ${{ github.event.pull_request.number || '-' }}
+            GIT TAG: https://github.com/${{ github.repository }}/releases/tag/${{ steps.semantic_version.outputs.new_release_git_tag }}
+      
+            Информация о Docker-репозитории
+            Владелец: ${{ secrets.DOCKER_USERNAME }}
+            Название: ${{ github.event.repository.name }}
+            Тег: ${{ steps.semantic_version.outputs.new_release_version }}
+            Полное имя: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ steps.semantic_version.outputs.new_release_version }}
+
+      - name: Send changelog file
         if: steps.semantic_version.outputs.new_release_published == 'true'
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           document: changelog.md
-          caption: |
-            Новый выпуск изменений
+          caption: 'CHANGELOG.md'
 
-            Проект: ${{ github.repository }}
-            Версия: ${{ steps.semantic_version.outputs.new_release_version }}
-            Дата: ${{ github.run_started_at }}
-            Автор: ${{ github.actor }}
-
-            Информация о Git-репозитории
-            GIT MR: ${{ github.event.pull_request.number || '-' }}
-            GIT TAG: https://github.com/${{ github.repository }}/releases/tag/${{ steps.semantic_version.outputs.new_release_git_tag }}
-
-            Информация о Docker-репозитории
-            Владелец: ${{ secrets.DOCKER_USERNAME }}
-            Название: ${{ github.event.repository.name }}
-            Тег: ${{ steps.semantic_version.outputs.new_release_version }}
-            Полное имя: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ steps.semantic_version.outputs.new_release_version }}
 
   deploy:
     needs: [build-and-deploy]
