@@ -1,0 +1,14 @@
+# Configuration for Branch-based labeling
+feature: 
+  - 'feature/**/*'
+  - 'feat/**/*'
+
+hotfix:
+  - 'hotfix/**/*'
+
+bugfix:
+  - 'fix/**/*'
+  - 'bug/**/*'
+
+chore:
+  - 'chore/**/*'
