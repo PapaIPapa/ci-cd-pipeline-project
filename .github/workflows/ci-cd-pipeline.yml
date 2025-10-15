@@ -118,7 +118,7 @@ jobs:
 
       - name: Send Telegram notification
         uses: appleboy/telegram-action@master
-        if: steps.semantic_version.outputs.version != ''
+        if: always()
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
