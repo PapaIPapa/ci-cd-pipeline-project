@@ -96,6 +96,7 @@ jobs:
 
       - name: Debug semantic version output
         run: echo "VERSION=${{ steps.semantic_version.outputs.version }}"
+        
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
