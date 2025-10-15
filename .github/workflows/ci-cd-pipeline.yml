@@ -1,0 +1,144 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+    types: [ opened, synchronize, closed ]
+
+env:
+  DOCKER_IMAGE_NAME: ${{ github.repository }}
+  REGISTRY: docker.io
+
+jobs:
+  validate-commits:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Validate Commit Messages
+        uses: wagoid/commitlint-github-action@v5
+        with:
+          configFile: .commitlintrc.json
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run security audit
+        run: npm audit --audit-level high
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+  build-and-deploy:
+    needs: [test]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true)
+    
+    outputs:
+      version: ${{ steps.semantic_version.outputs.version }}
+      changelog: ${{ steps.semantic_version.outputs.changelog }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Semantic Version
+        id: semantic_version
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          semantic_version: 21
+          extra_plugins: |
+            @semantic-release/changelog@6
+            @semantic-release/git@10
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
+            ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ steps.semantic_version.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Send Telegram notification
+        uses: appleboy/telegram-action@master
+        if: steps.semantic_version.outputs.version != ''
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            🚀 **Новый релиз готов!**
+            
+            📦 **Проект:** ${{ github.repository }}
+            🏷️ **Версия:** ${{ steps.semantic_version.outputs.version }}
+            👤 **Автор:** ${{ github.actor }}
+            🔗 **Docker Hub:** https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}
+            📋 **Changelog:** 
+            ${{ steps.semantic_version.outputs.changelog }}
+
+  deploy:
+    needs: [build-and-deploy]
+    runs-on: ubuntu-latest
+    if: needs.build-and-deploy.outputs.version != ''
+    
+    steps:
+      - name: Deploy to staging (Mock)
+        run: |
+          echo "Deploying version ${{ needs.build-and-deploy.outputs.version }}"
+          echo "Docker image: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ needs.build-and-deploy.outputs.version }}"
+          # Здесь может быть реальный деплой на ваш сервер
