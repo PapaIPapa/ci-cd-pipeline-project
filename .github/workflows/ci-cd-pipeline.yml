@@ -125,9 +125,12 @@ jobs:
 
       - name: Add changelog label
         uses: actions-ecosystem/action-add-labels@v1
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.event.head_commit.message != '')
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           labels: changelog
+          issue_number: ${{ github.event.pull_request.number }}
+
 
       - name: Add version label
         uses: actions-ecosystem/action-add-labels@v1
