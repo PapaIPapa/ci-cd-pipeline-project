@@ -64,11 +64,9 @@ jobs:
     needs: [test]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true)
-    
     outputs:
       version: ${{ steps.semantic_version.outputs.version }}
       changelog: ${{ steps.semantic_version.outputs.changelog }}
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -96,13 +94,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Debug semantic version output
+        run: echo "VERSION=${{ steps.semantic_version.outputs.version }}"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: smdmbsht
+          username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
@@ -111,7 +112,8 @@ jobs:
           context: .
           push: true
           tags: |
-            smdmbsht/${{ github.event.repository.name }}:latest
+            ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
+            ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ steps.semantic_version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -127,7 +129,7 @@ jobs:
             📦 **Проект:** ${{ github.repository }}
             🏷️ **Версия:** ${{ steps.semantic_version.outputs.version }}
             👤 **Автор:** ${{ github.actor }}
-            🔗 **Docker Hub:** https://hub.docker.com/r/smdmbsht/${{ github.event.repository.name }}
+            🔗 **Docker Hub:** https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}
             📋 **Changelog:** 
             ${{ steps.semantic_version.outputs.changelog }}
 
@@ -135,10 +137,8 @@ jobs:
     needs: [build-and-deploy]
     runs-on: ubuntu-latest
     if: needs.build-and-deploy.outputs.version != ''
-    
     steps:
       - name: Deploy to staging (Mock)
         run: |
           echo "Deploying version ${{ needs.build-and-deploy.outputs.version }}"
           echo "Docker image: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ needs.build-and-deploy.outputs.version }}"
-          # Здесь может быть реальный деплой на ваш сервер
