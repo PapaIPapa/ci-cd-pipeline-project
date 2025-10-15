@@ -166,6 +166,10 @@ jobs:
         if: steps.semantic_version.outputs.new_release_published == 'true'
         run: cp CHANGELOG.md changelog.md
 
+      - name: Get date
+        id: date
+        run: echo "date=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+
       - name: Send Telegram info message
         if: steps.semantic_version.outputs.new_release_published == 'true'
         uses: appleboy/telegram-action@master
@@ -177,7 +181,7 @@ jobs:
       
             Проект: ${{ github.repository }}
             Версия: ${{ steps.semantic_version.outputs.new_release_version }}
-            Дата: ${{ github.run_started_at }}
+            Дата: ${{ steps.date.outputs.date }}
             Автор: ${{ github.actor }}
       
             Информация о Git-репозитории
