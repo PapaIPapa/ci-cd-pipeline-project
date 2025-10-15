@@ -116,6 +116,11 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Debug semantic version output
+        run: |
+          echo "VERSION=${{ steps.semantic_version.outputs.version }}"
+          echo "CHANGELOG=${{ steps.semantic_version.outputs.changelog }}"
+
       - name: Send Telegram notification
         uses: appleboy/telegram-action@master
         if: always()
@@ -123,13 +128,13 @@ jobs:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
-            🚀 **Новый релиз готов!**
+            Новый релиз готов!
             
-            📦 **Проект:** ${{ github.repository }}
-            🏷️ **Версия:** ${{ steps.semantic_version.outputs.version }}
-            👤 **Автор:** ${{ github.actor }}
-            🔗 **Docker Hub:** https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}
-            📋 **Changelog:** 
+            Проект: ${{ github.repository }}
+            Версия: ${{ steps.semantic_version.outputs.version }}
+            Автор: ${{ github.actor }}
+            Docker Hub: https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}
+            Changelog: 
             ${{ steps.semantic_version.outputs.changelog }}
 
   deploy:
