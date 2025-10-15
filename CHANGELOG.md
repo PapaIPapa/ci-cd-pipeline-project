@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/PapaIPapa/ci-cd-pipeline-project/compare/v1.0.24...v1.1.0) (2025-10-15)
+
+
+### Features
+
+* test ([a198b2b](https://github.com/PapaIPapa/ci-cd-pipeline-project/commit/a198b2bf2bfb13e339f8beb8007c6f1513a8b655))
+
 ## [1.0.24](https://github.com/PapaIPapa/ci-cd-pipeline-project/compare/v1.0.23...v1.0.24) (2025-10-15)
 
 
