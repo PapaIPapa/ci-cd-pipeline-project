@@ -180,16 +180,11 @@ jobs:
           number: ${{ github.event.pull_request.number }}
           labels: dockerhub
 
-      - name: Read changelog
-        id: changelog
+      - name: Prepare changelog file
         run: |
-          # Берём последние 30 строк из CHANGELOG.md, можно настроить по необходимости
-          tail -n 30 CHANGELOG.md > .last_changelog
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          cat .last_changelog >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Send Telegram notification
+          tail -n 10 CHANGELOG.md > latest_changelog.md
+      
+      - name: Send Telegram notification with changelog file
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -200,8 +195,8 @@ jobs:
             Версия: ${{ steps.semantic_version.outputs.new_release_version }}
             Тег: ${{ steps.semantic_version.outputs.new_release_git_tag }}
             Автор: ${{ github.actor }}
-            Changelog:
-            ${{ steps.changelog.outputs.changelog }}
+          file: latest_changelog.txt
+
   
   deploy:
     needs: [build-and-deploy]
