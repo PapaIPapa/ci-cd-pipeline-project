@@ -180,22 +180,28 @@ jobs:
           number: ${{ github.event.pull_request.number }}
           labels: dockerhub
 
-  
+      - name: Read changelog
+        id: changelog
+        run: |
+          # Берём последние 30 строк из CHANGELOG.md, можно настроить по необходимости
+          tail -n 30 CHANGELOG.md > .last_changelog
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat .last_changelog >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Send Telegram notification
-        if: steps.semantic_version.outputs.new_release_published == 'true'
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
-            Новый релиз готов!
-            
+            Новый релиз!
             Проект: ${{ github.repository }}
             Версия: ${{ steps.semantic_version.outputs.new_release_version }}
             Тег: ${{ steps.semantic_version.outputs.new_release_git_tag }}
             Автор: ${{ github.actor }}
-            Docker Hub: https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}
-            GitHub Release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.semantic_version.outputs.new_release_git_tag }}
+            Changelog:
+            ${{ steps.changelog.outputs.changelog }}
   
   deploy:
     needs: [build-and-deploy]
