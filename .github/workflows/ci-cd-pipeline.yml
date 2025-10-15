@@ -165,6 +165,7 @@ jobs:
       - name: Prepare changelog
         if: steps.semantic_version.outputs.new_release_published == 'true'
         run: cp CHANGELOG.md changelog.md
+
       - name: Send changelog file with caption
         if: steps.semantic_version.outputs.new_release_published == 'true'
         uses: appleboy/telegram-action@master
