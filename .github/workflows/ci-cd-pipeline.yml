@@ -185,7 +185,6 @@ jobs:
             Автор: ${{ github.actor }}
       
             Информация о Git-репозитории
-            GIT MR: ${{ github.event.pull_request.number || '-' }}
             GIT TAG: https://github.com/${{ github.repository }}/releases/tag/${{ steps.semantic_version.outputs.new_release_git_tag }}
       
             Информация о Docker-репозитории
