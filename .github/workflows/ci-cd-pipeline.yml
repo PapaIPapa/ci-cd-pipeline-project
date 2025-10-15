@@ -112,7 +112,6 @@ jobs:
           push: true
           tags: |
             smdmbsht/${{ github.event.repository.name }}:latest
-            smdmbsht/${{ github.event.repository.name }}:${{ steps.semantic_version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
