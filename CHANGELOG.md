@@ -1,3 +1,10 @@
+## [1.0.12](https://github.com/PapaIPapa/ci-cd-pipeline-project/compare/v1.0.11...v1.0.12) (2025-10-15)
+
+
+### Bug Fixes
+
+* emae ([48d6c93](https://github.com/PapaIPapa/ci-cd-pipeline-project/commit/48d6c933c46c29bd8401e808d36ebfd650c7bbaa))
+
 ## [1.0.11](https://github.com/PapaIPapa/ci-cd-pipeline-project/compare/v1.0.10...v1.0.11) (2025-10-15)
 
 
