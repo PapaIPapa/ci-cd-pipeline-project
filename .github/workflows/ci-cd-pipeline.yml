@@ -112,7 +112,7 @@ jobs:
           push: true
           tags: |
             smdmbsht/${{ github.event.repository.name }}:latest
-            ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ steps.semantic_version.outputs.version }}
+            smdmbsht/${{ github.event.repository.name }}:${{ steps.semantic_version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -128,7 +128,7 @@ jobs:
             📦 **Проект:** ${{ github.repository }}
             🏷️ **Версия:** ${{ steps.semantic_version.outputs.version }}
             👤 **Автор:** ${{ github.actor }}
-            🔗 **Docker Hub:** https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}
+            🔗 **Docker Hub:** https://hub.docker.com/r/smdmbsht/${{ github.event.repository.name }}
             📋 **Changelog:** 
             ${{ steps.semantic_version.outputs.changelog }}
 
