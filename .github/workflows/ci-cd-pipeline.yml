@@ -124,13 +124,13 @@ jobs:
           echo "NEW_RELEASE_GIT_TAG=${{ steps.semantic_version.outputs.new_release_git_tag }}"
 
       - name: Add changelog label
+        if: ${{ github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-add-labels@v1
-        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.event.head_commit.message != '')
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          repo: ${{ github.repository }}
+          number: ${{ github.event.pull_request.number }}
           labels: changelog
-          issue_number: ${{ github.event.pull_request.number }}
-
 
       - name: Add version label
         uses: actions-ecosystem/action-add-labels@v1
