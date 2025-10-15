@@ -205,11 +205,4 @@ jobs:
       - name: Deploy to staging (Mock)
         run: |
 
-      - name: Add PROD label
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          repo: ${{ github.repository }}
-          number: ${{ needs.build-and-deploy.outputs.pr_number }}
-          labels: PROD
 
