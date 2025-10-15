@@ -181,9 +181,7 @@ jobs:
           labels: dockerhub
 
       - name: Prepare changelog
-        run: |
-          # Можно сохранить весь changelog, либо только последние строки — настроить под себя
-          cp CHANGELOG.md changelog.md
+        run: cp CHANGELOG.md changelog.md
       
       - name: Send Telegram message
         uses: appleboy/telegram-action@master
@@ -191,25 +189,22 @@ jobs:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
-            <b><span style="color:#D06F8A">GITHUB_DEVOPS_BOT</span></b>
             Новый выпуск изменений
-            
-            <b>Проект :</b> <a href="https://github.com/${{ github.repository }}">${{ github.repository }}</a>
-            <b>Версия :</b> <code>${{ steps.semantic_version.outputs.new_release_version }}</code>
-            <b>Дата:</b> <code>${{ steps.semantic_version.outputs.date || github.run_started_at }}</code>
-            <b>Автор:</b> <code>${{ github.actor }}</code>
-            
-            <b>Информация о Git-репозитории</b>
-            GIT MR : <code>${{ github.event.pull_request.number || '-' }}</code>
-            GIT TAG: <a href="https://github.com/${{ github.repository }}/releases/tag/${{ steps.semantic_version.outputs.new_release_git_tag }}">${{ steps.semantic_version.outputs.new_release_git_tag }}</a>
-            
-            <b>Информация о Docker-репозитории</b>
-            Владелец: <a href="https://hub.docker.com/u/${{ secrets.DOCKER_USERNAME }}">${{ secrets.DOCKER_USERNAME }}</a>
-            Название: <code>${{ github.event.repository.name }}</code>
-            Тег: <code>${{ steps.semantic_version.outputs.new_release_version }}</code>
-            Полное имя: <a href="https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ steps.semantic_version.outputs.new_release_version }}">${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ steps.semantic_version.outputs.new_release_version }}</a>
-          parse_mode: html
-
+      
+            Проект: ${{ github.repository }}
+            Версия: ${{ steps.semantic_version.outputs.new_release_version }}
+            Дата: ${{ steps.semantic_version.outputs.date || github.run_started_at }}
+            Автор: ${{ github.actor }}
+      
+            Информация о Git-репозитории
+            GIT MR: ${{ github.event.pull_request.number || '-' }}
+            GIT TAG: https://github.com/${{ github.repository }}/releases/tag/${{ steps.semantic_version.outputs.new_release_git_tag }}
+      
+            Информация о Docker-репозитории
+            Владелец: ${{ secrets.DOCKER_USERNAME }}
+            Название: ${{ github.event.repository.name }}
+            Тег: ${{ steps.semantic_version.outputs.new_release_version }}
+            Полное имя: ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ steps.semantic_version.outputs.new_release_version }}
       
       - name: Send changelog file
         uses: appleboy/telegram-action@master
@@ -217,9 +212,7 @@ jobs:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           document: changelog.md
-
-
-  
+ 
   deploy:
     needs: [build-and-deploy]
     runs-on: ubuntu-latest
